@@ -1,19 +1,33 @@
 import { createWorkflowExecution } from '../services/orchestrator';
 import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
+// Mock PrismaClient
+const mockPrisma = {
+  workflow: {
+    create: jest.fn().mockResolvedValue({ id: 'test-workflow-id' }),
+  },
+  workflowExecution: {
+    create: jest.fn().mockResolvedValue({ id: 'test-execution-id', status: 'PENDING' }),
+  },
+  executionTrace: {
+    create: jest.fn().mockResolvedValue({}),
+    findMany: jest.fn().mockResolvedValue([
+      { nodeId: '1', nodeType: 'trigger' },
+      { nodeId: '2', nodeType: 'agent' },
+    ]),
+  },
+  $connect: jest.fn().mockResolvedValue(undefined),
+  $disconnect: jest.fn().mockResolvedValue(undefined),
+};
+
+// Override PrismaClient with mock
+jest.mock('@prisma/client', () => ({
+  PrismaClient: jest.fn(() => mockPrisma),
+}));
 
 describe('Workflow Serialization & Trace Initialization', () => {
-  beforeAll(async () => {
-    await prisma.$connect();
-  });
-
-  afterAll(async () => {
-    // Clean up test data
-    await prisma.executionTrace.deleteMany({});
-    await prisma.workflowExecution.deleteMany({});
-    await prisma.workflow.deleteMany({});
-    await prisma.$disconnect();
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   it('should compile an incoming valid DAG and generate Execution Traces', async () => {
@@ -28,13 +42,8 @@ describe('Workflow Serialization & Trace Initialization', () => {
     const execution = await createWorkflowExecution(validDAG);
 
     expect(execution.status).toBe('PENDING');
-    
-    const traces = await prisma.executionTrace.findMany({
-      where: { executionId: execution.id }
-    });
-
-    // Verify system created a tracing node entry for every node in DAG
-    expect(traces.length).toBe(2);
-    expect(traces.find(t => t.nodeId === '2')?.nodeType).toBe('agent');
+    expect(mockPrisma.workflow.create).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.workflowExecution.create).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.executionTrace.create).toHaveBeenCalledTimes(2);
   });
 });

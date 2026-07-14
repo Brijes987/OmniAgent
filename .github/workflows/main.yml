@@ -68,4 +68,10 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Dry-run Docker Compose compilation
-        run: docker compose config
+        run: |
+          # Try both docker-compose and docker compose
+          if command -v docker-compose &> /dev/null; then
+            docker-compose config
+          else
+            docker compose config
+          fi
