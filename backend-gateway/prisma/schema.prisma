@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}
+
+model Workflow {
+  id        String               @id @default(uuid())
+  name      String
+  nodes     Json
+  edges     Json
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+  executions WorkflowExecution[]
+}
+
+model WorkflowExecution {
+  id          String            @id @default(uuid())
+  workflowId  String
+  status      ExecutionStatus   @default(PENDING)
+  totalTokens Int               @default(0)
+  totalCost   Float             @default(0.0)
+  createdAt   DateTime          @default(now())
+  completedAt DateTime?
+  traces      ExecutionTrace[]
+  workflow    Workflow          @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+}
+
+model ExecutionTrace {
+  id          String            @id @default(uuid())
+  executionId String
+  nodeId      String
+  nodeType    String
+  status      ExecutionStatus   @default(PENDING)
+  inputData   Json?
+  outputData  Json?
+  tokensUsed  Int?              @default(0)
+  cost        Float?            @default(0.0)
+  durationMs  Int?              @default(0)
+  createdAt   DateTime          @default(now())
+  execution   WorkflowExecution @relation(fields: [executionId], references: [id], onDelete: Cascade)
+}
+
+enum ExecutionStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+}
