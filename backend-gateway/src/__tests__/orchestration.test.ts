@@ -1,7 +1,4 @@
-import { createWorkflowExecution } from '../services/orchestrator';
-import { PrismaClient } from '@prisma/client';
-
-// Mock PrismaClient
+// Mock PrismaClient first (must be at top, before any imports that use PrismaClient)
 const mockPrisma = {
   workflow: {
     create: jest.fn().mockResolvedValue({ id: 'test-workflow-id' }),
@@ -20,10 +17,12 @@ const mockPrisma = {
   $disconnect: jest.fn().mockResolvedValue(undefined),
 };
 
-// Override PrismaClient with mock
+// Hoisted mock
 jest.mock('@prisma/client', () => ({
   PrismaClient: jest.fn(() => mockPrisma),
 }));
+
+import { createWorkflowExecution } from '../services/orchestrator';
 
 describe('Workflow Serialization & Trace Initialization', () => {
   afterEach(() => {

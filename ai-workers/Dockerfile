@@ -1,4 +1,4 @@
-FROM python:3.10-slim AS runner
+FROM python:3.11-slim AS runner
 WORKDIR /app
 ENV PYTHONUNBUFFERED=1
 
