@@ -2,6 +2,10 @@
 
 OmniAgent is an enterprise-grade, event-driven multi-agent orchestration platform built with Next.js, Node.js, Python, and Docker. It enables you to design, execute, and monitor complex workflows composed of triggers, LLM agents, and tools, all in a beautiful visual interface.
 
+## Demo
+
+![OmniAgent Workflow Builder Demo](https://coresg-normal.trae.ai/api/v1/text_to_image?prompt=Enterprise%20multi-agent%20workflow%20builder%20UI%20with%20React%20Flow%20canvas%20showing%20trigger%2C%20agent%2C%20and%20tool%20nodes%2C%20dark%20theme%2C%20Tailwind%20CSS%2C%20ShadCN%20UI&image_size=square_hd)
+
 ## Architecture Overview
 
 OmniAgent uses a decoupled architecture with the following components:
@@ -44,7 +48,7 @@ OmniAgent uses a decoupled architecture with the following components:
 - [ShadCN UI](https://ui.shadcn.com)
 
 ### Backend Gateway
-- [Node.js](https://nodejs.org) 20
+- [Node.js](https://nodejs.org) 22
 - [Express](https://expressjs.com)
 - [Socket.IO](https://socket.io)
 - [Prisma](https://www.prisma.io) ORM
